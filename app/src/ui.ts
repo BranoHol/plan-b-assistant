@@ -77,8 +77,8 @@ export function vykresliParovani(sparovano: boolean, server: string) {
     <div class="card">
       <div class="card-title">Pair with your server</div>
       <div class="card-sub">Enter the address and access token of your
-        Plan&nbsp;B server. You get both when you install the server —
-        see the project page for setup instructions.</div>
+        Plan&nbsp;B server. You get both when you install the server — see the
+        <a href="https://github.com/BranoHol/plan-b-assistant" target="_blank" rel="noopener">setup guide</a> on GitHub.</div>
       <label>Server address
         <input id="in-server" type="url" inputmode="url" autocapitalize="none"
                autocorrect="off" spellcheck="false" placeholder="your-ip.sslip.io">
@@ -92,8 +92,8 @@ export function vykresliParovani(sparovano: boolean, server: string) {
       <label class="check">
         <input id="in-agree" type="checkbox">
         <span>I have read the points above and accept the
-          <a href="https://claude.ai/code/artifact/008755e2-f10e-41d3-b345-53b3df588564" target="_blank" rel="noopener">Terms of Use</a>
-          and <a href="https://claude.ai/code/artifact/ba7fa941-8aac-4ec1-97f0-edcde2149d9f" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+          <a href="https://branohol.github.io/plan-b-assistant/terms.html" target="_blank" rel="noopener">Terms of Use</a>
+          and <a href="https://branohol.github.io/plan-b-assistant/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span>
       </label>
       <button id="pair" class="primary" disabled>Pair</button>
       <div id="pair-err" class="err-msg"></div>
