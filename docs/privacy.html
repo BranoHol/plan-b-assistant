@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan B Assistant Privacy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+
+<style>
+  :root {
+    --ground: #F6F8FA;
+    --surface: #FFFFFF;
+    --panel: #EDF1F5;
+    --ink: #10151C;
+    --muted: #576070;
+    --rule: #D7DEE6;
+    --accent: #1B5B67;
+    --accent-soft: #E2EEF0;
+
+    --step-0: 1rem;
+    --step-1: 1.1875rem;
+    --step-2: 1.5rem;
+    --step-3: 2.25rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0D1117;
+      --surface: #151A21;
+      --panel: #1B222B;
+      --ink: #E5E9EE;
+      --muted: #98A2B0;
+      --rule: #262D37;
+      --accent: #7FC4CF;
+      --accent-soft: #173034;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0D1117;
+    --surface: #151A21;
+    --panel: #1B222B;
+    --ink: #E5E9EE;
+    --muted: #98A2B0;
+    --rule: #262D37;
+    --accent: #7FC4CF;
+    --accent-soft: #173034;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: var(--step-0);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.75rem;
+  }
+
+  header { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-family: Newsreader, Georgia, "Times New Roman", serif;
+    font-size: var(--step-3);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .lede {
+    font-size: var(--step-1);
+    color: var(--muted);
+    margin: 0;
+    max-width: 34em;
+  }
+
+  .summary {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .summary p { margin: 0; }
+  .summary p strong { font-weight: 600; }
+
+  section { display: flex; flex-direction: column; gap: 0.9rem; }
+
+  h2 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: 1.25;
+    margin: 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    text-wrap: balance;
+  }
+
+  p { margin: 0; max-width: 65ch; }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  th {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--panel);
+  }
+
+  td:first-child { font-weight: 500; white-space: nowrap; }
+
+  ul { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.5rem; max-width: 65ch; }
+
+  .note {
+    border-left: 2px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 0.9rem 1.15rem;
+    border-radius: 0 3px 3px 0;
+  }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.25rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.9em;
+    background: var(--panel);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="eyebrow">Plan B Assistant &middot; Even Realities G2</div>
+    <h1>Privacy Policy</h1>
+    <p class="lede">Plan B Assistant is a client for a server you run yourself. It has no account system, no analytics, and no backend of ours.</p>
+  </header>
+
+  <div class="summary">
+    <p><strong>We collect nothing.</strong> The developer of this app operates no servers and receives no data from it — not your questions, not your audio, not usage statistics.</p>
+    <p><strong>Your questions go to your machine.</strong> After pairing, everything the app sends goes to the server address you entered, and nowhere else.</p>
+    <p><strong>Your credentials stay on your phone.</strong> The server address and access token are stored in the app's local storage on your device.</p>
+  </div>
+
+  <section>
+    <h2>What the app stores on your device</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Item</th><th scope="col">Where it is kept</th><th scope="col">Why</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Server address</td>
+            <td>Local storage on your phone</td>
+            <td>So the app knows where to send your questions without asking again.</td>
+          </tr>
+          <tr>
+            <td>Access token</td>
+            <td>Local storage on your phone</td>
+            <td>So your server accepts the app as yours.</td>
+          </tr>
+          <tr>
+            <td>Last answer</td>
+            <td>Memory only, while the app runs</td>
+            <td>So a tap can bring the previous answer back on the display.</td>
+          </tr>
+          <tr>
+            <td>Unsent question</td>
+            <td>Memory only, while the app runs</td>
+            <td>So a question recorded offline can be sent when the connection returns.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Nothing in this table leaves your phone except to the server you paired with. Unpairing in the app deletes the stored address and token immediately.</p>
+  </section>
+
+  <section>
+    <h2>Microphone and speech</h2>
+    <p>The microphone is active only while you hold the ring button. When you release it, recording stops. The app never listens in the background and never records without that deliberate hold.</p>
+    <p>What happens to the audio depends on how your server is configured:</p>
+    <ul>
+      <li><strong>Live transcription.</strong> If your server provides a speech-to-text key, the app streams the audio directly to that transcription service while you speak, so the words appear on the display as you say them. The service is chosen and paid for by you; its own privacy terms apply to that audio.</li>
+      <li><strong>Fallback transcription.</strong> If live transcription is unavailable, the recording is sent to your own server, which transcribes it however you configured it.</li>
+    </ul>
+    <p>Audio is not stored by the app after the answer arrives.</p>
+  </section>
+
+  <section>
+    <h2>Your server, your rules</h2>
+    <p>The assistant itself — the model, the memory, the mail and calendar connections — runs on your server under your account. What is logged there, how long it is kept, and who can reach it is entirely under your control, because it is your machine.</p>
+    <div class="note">
+      <p>Because the app has no backend of ours, we cannot read, recover, or delete anything you have sent. Deletion happens on your server.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Permissions the app requests</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Permission</th><th scope="col">What it is used for</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Microphone</td>
+            <td>Capturing your question while the ring button is held.</td>
+          </tr>
+          <tr>
+            <td>Network</td>
+            <td>Reaching the server you paired with and, when enabled, the transcription service your server names.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>All connections use HTTPS or secure WebSockets. The app requests no location, contacts, photos, or health data.</p>
+  </section>
+
+  <section>
+    <h2>Children</h2>
+    <p>Plan B Assistant is not designed for or directed at children under 13, and it collects no data that would identify anyone.</p>
+  </section>
+
+  <section>
+    <h2>Changes to this policy</h2>
+    <p>If a future version of the app changes what data is handled, this page is updated before that version is released, and the effective date below changes with it.</p>
+  </section>
+
+  <section>
+    <h2>Contact</h2>
+    <p>Questions about this policy: <a href="mailto:branoholicek@gmail.com">branoholicek@gmail.com</a></p>
+  </section>
+
+  <footer>
+    <div>Effective 26 August 2026 &middot; App version <code>0.2.0</code></div>
+    <div>Plan B Assistant &middot; developer PlanBCoding</div>
+  </footer>
+</div>
+</body>
+</html>

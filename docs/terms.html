@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan B Assistant Terms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+
+<style>
+  :root {
+    --ground: #F6F8FA;
+    --surface: #FFFFFF;
+    --panel: #EDF1F5;
+    --ink: #10151C;
+    --muted: #576070;
+    --rule: #D7DEE6;
+    --accent: #1B5B67;
+    --accent-soft: #E2EEF0;
+    --warn-rule: #9A5B2A;
+    --warn-soft: #FAF0E6;
+
+    --step-0: 1rem;
+    --step-1: 1.1875rem;
+    --step-2: 1.5rem;
+    --step-3: 2.25rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0D1117;
+      --surface: #151A21;
+      --panel: #1B222B;
+      --ink: #E5E9EE;
+      --muted: #98A2B0;
+      --rule: #262D37;
+      --accent: #7FC4CF;
+      --accent-soft: #173034;
+      --warn-rule: #D89A5E;
+      --warn-soft: #2A2118;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0D1117;
+    --surface: #151A21;
+    --panel: #1B222B;
+    --ink: #E5E9EE;
+    --muted: #98A2B0;
+    --rule: #262D37;
+    --accent: #7FC4CF;
+    --accent-soft: #173034;
+    --warn-rule: #D89A5E;
+    --warn-soft: #2A2118;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: var(--step-0);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.75rem;
+  }
+
+  header { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-family: Newsreader, Georgia, "Times New Roman", serif;
+    font-size: var(--step-3);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .lede { font-size: var(--step-1); color: var(--muted); margin: 0; max-width: 34em; }
+
+  section { display: flex; flex-direction: column; gap: 0.9rem; }
+
+  h2 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: 1.25;
+    margin: 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    text-wrap: balance;
+  }
+
+  h2 .num {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.7em;
+    color: var(--muted);
+    margin-right: 0.6rem;
+  }
+
+  p { margin: 0; max-width: 65ch; }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  ul { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.5rem; max-width: 65ch; }
+
+  .callout {
+    border-left: 2px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 0.9rem 1.15rem;
+    border-radius: 0 3px 3px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .callout.warn { border-left-color: var(--warn-rule); background: var(--warn-soft); }
+
+  .callout .label {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.25rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.9em;
+    background: var(--panel);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="eyebrow">Plan B Assistant &middot; Even Realities G2</div>
+    <h1>Terms of Use</h1>
+    <p class="lede">Plan B Assistant is free software provided as is. Using it means accepting these terms.</p>
+  </header>
+
+  <section>
+    <h2><span class="num">1</span>What this app is</h2>
+    <p>Plan B Assistant is a client application for Even Realities G2 glasses. It sends what you say to a server that you run and operate, and shows the answer on the display. It is not a service: the developer runs no servers, holds no accounts, and receives no data from the app.</p>
+    <p>The assistant behind the answers, the AI provider it uses, and any mail, calendar or other tools it can reach are all part of <em>your</em> server setup. Your agreements with those providers are between you and them.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>You are responsible for how you use it</h2>
+    <p>You agree to use the app lawfully. In particular:</p>
+    <ul>
+      <li><strong>Recording other people.</strong> The microphone is active only while you hold the ring button, but you are the one who decides when to hold it. Recording or transcribing other people without their knowledge or consent is unlawful in many countries and in many US states. Complying with the law where you are is your responsibility, not the developer's.</li>
+      <li><strong>Attention and safety.</strong> Do not read the display while driving, cycling, operating machinery, or in any situation where distraction can hurt you or someone else.</li>
+      <li><strong>Other people's rules.</strong> Respect places and situations where recording devices or smart glasses are not permitted — examinations, courtrooms, clinics, secure facilities, private homes.</li>
+      <li><strong>No harmful use.</strong> Do not use the app to harass, deceive, impersonate, or surveil anyone, or to break into systems that are not yours.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>Your server, your data, your responsibility</h2>
+    <p>You choose the server the app connects to and you control it. You are responsible for securing it, for keeping your access token secret, and for whatever is stored or logged there. Under data protection law, you are the controller of that data — the developer has no access to it and cannot read, recover, or delete anything on your behalf.</p>
+    <div class="callout">
+      <span class="label">Pair carefully</span>
+      <p>Only pair the app with a server you control. Whoever operates the server you enter can read everything you send to it.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>Answers can be wrong</h2>
+    <p>The app displays output generated by an AI model. Such output can be inaccurate, incomplete, or entirely invented, and speech recognition can mishear you. Do not rely on it for medical, legal, financial, or safety-critical decisions. Check anything that matters against a source you trust.</p>
+    <p>Actions that change something — sending a message, writing to a calendar — are confirmed out loud before they happen. Confirm deliberately; once confirmed, the action is carried out by your server.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>No warranty</h2>
+    <p>The app is provided free of charge, <strong>as is</strong> and <strong>as available</strong>, without warranty of any kind, express or implied, including any implied warranty of merchantability, fitness for a particular purpose, or non-infringement. The developer does not warrant that the app will be uninterrupted, error-free, or compatible with any particular device, firmware version, or third-party service.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>Limitation of liability</h2>
+    <p>To the fullest extent permitted by applicable law, the developer is not liable for any indirect, incidental, special, or consequential damages, nor for loss of data, loss of profits, or business interruption arising from the use of or inability to use the app — including costs incurred on your own server or with any AI, transcription, or hosting provider you use with it.</p>
+    <div class="callout warn">
+      <span class="label">What cannot be excluded</span>
+      <p>Nothing in these terms limits liability that cannot be limited by law — including liability for death or personal injury caused by negligence, for intentional harm or gross negligence, or any mandatory rights you have as a consumer under the law of your country of residence.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>Indemnity</h2>
+    <p>If a third party brings a claim against the developer because of how you used the app — for example a recording made without consent — you agree to cover the resulting costs, to the extent permitted by law.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">8</span>Age</h2>
+    <p>You must be at least 16 years old to use the app, or older where your country sets a higher age for consenting to digital services on your own.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">9</span>Changes and availability</h2>
+    <p>The app may be updated, changed, or withdrawn at any time. Continuing to use it after an update means accepting the terms as they stand then. Because the app is free and self-hosted, no refund or continuity of service is promised or owed.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">10</span>Governing law</h2>
+    <p>These terms are governed by the law of the Czech Republic, without prejudice to any mandatory consumer protections in your country of residence.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">11</span>Contact</h2>
+    <p>Questions about these terms: <a href="mailto:branoholicek@gmail.com">branoholicek@gmail.com</a></p>
+    <p>See also the <a href="https://claude.ai/code/artifact/ba7fa941-8aac-4ec1-97f0-edcde2149d9f">Privacy Policy</a>.</p>
+  </section>
+
+  <footer>
+    <div>Effective 26 August 2026 &middot; App version <code>0.2.0</code></div>
+    <div>Plan B Assistant &middot; developer PlanBCoding</div>
+  </footer>
+</div>
+</body>
+</html>
