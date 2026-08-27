@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.ehpk
+*.log
+__pycache__/
+
+# Nikdy nezverejnovat — osobni data a klice
+token.txt
+soniox.txt
+groq.txt
+slovnik.txt
+CLAUDE.md
+**/pamet/*.md
+!server/pamet/projekty.md
+!server/pamet/lide.md
+!server/pamet/kontext.md
+KLICE-A-ADRESY.txt
