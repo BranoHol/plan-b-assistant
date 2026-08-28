@@ -57,6 +57,23 @@ Caddy gateway that terminates HTTPS (using [sslip.io](https://sslip.io), so you
 do not need to buy a domain) and enforces the access token. It generates the
 token for you and prints it at the end.
 
+> **Your server must be reachable at an `.sslip.io` address.** The glasses app
+> is only allowed to talk to addresses ending in `.sslip.io` — that limit is
+> declared in the app manifest, which the store reviewer checks, and it cannot
+> be widened from your side. A custom domain, a Tailscale name or a Cloudflare
+> tunnel **will not pair**. The installer gives you the right kind of address
+> automatically (it looks like `203.0.113.7.sslip.io`), so as long as you use
+> what it prints, there is nothing to do. You still need a server with a public
+> IPv4 address.
+>
+> **Already have your own domain? You do not have to give it up, and you do not
+> have to change anything on the server.** `sslip.io` simply resolves whatever
+> IP address you write into the hostname, so the machine behind
+> `assistant.yourcompany.com` also answers at `<that-machine's-IP>.sslip.io`.
+> Keep using your domain for everything else and enter the `.sslip.io` form in
+> the glasses app. It is the same server, reached the same way — only the name
+> the app is allowed to type is different.
+
 It then asks you to do two things by hand, because they need your browser and
 your own keys:
 
@@ -98,7 +115,8 @@ You want `"pripraven": true`. That is the whole server.
 Install **Plan B Assistant** from the Even Hub store, open it once, and the
 phone app will ask for two things:
 
-- **Server address** — `your-ip.sslip.io`
+- **Server address** — `your-ip.sslip.io` (it must end in `.sslip.io`; the app
+  refuses anything else and tells you so)
 - **Access token** — printed by the installer, also in `/home/asistent/agent/token.txt`
 
 Tick the box, tap **Pair**, and you are done. The glasses app never asks again.
@@ -165,9 +183,13 @@ under your own developer account and package ID.
 ## What the app sends where
 
 - **Your questions and answers** — only to the server address you paired with.
-- **Your audio** — to the transcription service whose key your server holds
-  (live path), or to your own server (fallback path). Nothing is stored by the
-  app after the answer arrives.
+- **Your audio** — to **Soniox** (soniox.com) when your server holds a Soniox
+  key, so the words can appear on the glasses as you speak; otherwise to your
+  own server, which transcribes it however you configured it. Nothing is stored
+  by the app after the answer arrives.
+- **The names in `slovnik.txt`** — sent to Soniox alongside the audio, so it
+  spells your people and projects correctly. Leave that file empty if you would
+  rather send nothing.
 - **Anything else** — nowhere. There is no analytics, no crash reporting, no
   developer backend.
 
