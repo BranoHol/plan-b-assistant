@@ -197,7 +197,7 @@
 
   <div class="summary">
     <p><strong>We collect nothing.</strong> The developer of this app operates no servers and receives no data from it — not your questions, not your audio, not usage statistics.</p>
-    <p><strong>Your questions go to your machine.</strong> After pairing, everything the app sends goes to the server address you entered, and nowhere else.</p>
+    <p><strong>Your questions go to your machine.</strong> After pairing, your questions and their answers go to the server address you entered, and to no server of ours. There is one other destination, and only one: when live transcription is switched on, your speech is streamed to the speech-to-text service <strong>Soniox</strong> so the words can appear on the glasses as you talk. It is described in full under <em>Microphone and speech</em> below.</p>
     <p><strong>Your credentials stay on your phone.</strong> The server address and access token are stored in the app's local storage on your device.</p>
   </div>
 
@@ -240,7 +240,7 @@
     <p>The microphone is active only while you hold the ring button. When you release it, recording stops. The app never listens in the background and never records without that deliberate hold.</p>
     <p>What happens to the audio depends on how your server is configured:</p>
     <ul>
-      <li><strong>Live transcription.</strong> If your server provides a speech-to-text key, the app streams the audio directly to that transcription service while you speak, so the words appear on the display as you say them. The service is chosen and paid for by you; its own privacy terms apply to that audio.</li>
+      <li><strong>Live transcription.</strong> If your server holds a speech-to-text key, the app streams your audio directly to <strong>Soniox</strong> (soniox.com) while you speak, so the words appear on the display as you say them. Soniox is named in the app and cannot be swapped for another service in this version; the key and the bill are yours, and Soniox's own privacy terms apply to that audio.<br><br>Along with the audio, the app sends Soniox a <strong>list of names and terms</strong> that your server holds in its <code>slovnik.txt</code> file — people, places, project names. It is sent so the transcription spells them correctly. Those words are yours: you decide what goes in that file, and if you would rather send nothing, leave it empty. Note that when you say those names out loud, Soniox receives them in the audio anyway.</li>
       <li><strong>Fallback transcription.</strong> If live transcription is unavailable, the recording is sent to your own server, which transcribes it however you configured it.</li>
     </ul>
     <p>Audio is not stored by the app after the answer arrives.</p>
@@ -268,7 +268,7 @@
           </tr>
           <tr>
             <td>Network</td>
-            <td>Reaching the server you paired with and, when enabled, the transcription service your server names.</td>
+            <td>Reaching the server you paired with and, when live transcription is enabled, Soniox.</td>
           </tr>
         </tbody>
       </table>
@@ -288,11 +288,12 @@
 
   <section>
     <h2>Contact</h2>
-    <p>Questions about this policy: <a href="mailto:branoholicek@gmail.com">branoholicek@gmail.com</a></p>
+    <p>Questions about this policy: open an issue at
+      <a href="https://github.com/BranoHol/plan-b-assistant/issues">github.com/BranoHol/plan-b-assistant/issues</a>.</p>
   </section>
 
   <footer>
-    <div>Effective 26 August 2026 &middot; App version <code>0.2.0</code></div>
+    <div>Effective 28 August 2026 &middot; App version <code>0.2.7</code></div>
     <div>Plan B Assistant &middot; developer PlanBCoding</div>
   </footer>
 </div>
