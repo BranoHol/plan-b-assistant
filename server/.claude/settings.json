@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(//home/asistent/agent/token.txt)",
+      "Read(//home/asistent/agent/soniox.txt)",
+      "Read(//home/asistent/agent/groq.txt)",
+      "Read(//home/asistent/.claude/**)",
+      "Read(//home/asistent/.ssh/**)",
+      "Read(//etc/caddy/**)",
+      "Read(./token.txt)",
+      "Read(./soniox.txt)",
+      "Read(./groq.txt)",
+      "Read(token.txt)",
+      "Read(soniox.txt)",
+      "Read(groq.txt)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Glob|Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/asistent/agent/.claude/strazce.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
