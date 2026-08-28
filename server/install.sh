@@ -33,7 +33,7 @@ else
   adduser --disabled-password --gecos "" "$UZIVATEL" >/dev/null
   echo "User '$UZIVATEL' created."
 fi
-mkdir -p "$SLOZKA/pamet"
+mkdir -p "$SLOZKA/pamet" "$SLOZKA/.claude"
 
 # ---------- 3. Node.js + Claude Code ----------
 nadpis "3/7  Node.js and Claude Code"
@@ -55,14 +55,27 @@ fi
 nadpis "4/7  Bridge files"
 cp "$ZDROJ/mostek.py" "$ZDROJ/prepis.py" "$SLOZKA/"
 [ -f "$SLOZKA/CLAUDE.md" ] || cp "$ZDROJ/CLAUDE.md.example" "$SLOZKA/CLAUDE.md"
+cp "$ZDROJ/.claude/settings.json" "$ZDROJ/.claude/strazce.py" "$SLOZKA/.claude/"
 for f in "$ZDROJ"/pamet/*.md; do
   jmeno=$(basename "$f")
   [ -f "$SLOZKA/pamet/$jmeno" ] || cp "$f" "$SLOZKA/pamet/$jmeno"
 done
 [ -f "$SLOZKA/slovnik.txt" ] || printf '' > "$SLOZKA/slovnik.txt"
+
+# The assistant runs as '$UZIVATEL' and may write to its memory, but it must
+# NOT be able to rewrite its own code or its own rules — otherwise a hostile
+# instruction hidden in a web page or an e-mail could change what it is
+# allowed to do. Those files stay owned by root, world-readable.
 chown -R "$UZIVATEL:$UZIVATEL" "/home/$UZIVATEL"
-chmod 644 "$SLOZKA/mostek.py" "$SLOZKA/prepis.py"
-echo "Copied to $SLOZKA."
+chown root:root "$SLOZKA/mostek.py" "$SLOZKA/prepis.py" "$SLOZKA/CLAUDE.md" \
+                "$SLOZKA/.claude/settings.json" "$SLOZKA/.claude/strazce.py"
+chmod 644 "$SLOZKA/mostek.py" "$SLOZKA/prepis.py" "$SLOZKA/CLAUDE.md" \
+          "$SLOZKA/.claude/settings.json" "$SLOZKA/.claude/strazce.py"
+# I samotny adresar .claude patri rootovi — jinak by sel smazat a vyrobit
+# znovu i s jinymi pravidly, aniz by se na soubory v nem sahlo.
+chown root:root "$SLOZKA/.claude"
+chmod 755 "$SLOZKA/.claude"
+echo "Copied to $SLOZKA (code and rules owned by root)."
 
 # ---------- 5. access token ----------
 nadpis "5/7  Access token"
@@ -72,10 +85,10 @@ if [ -f "$SLOZKA/token.txt" ]; then
 else
   TOKEN=$(head -c 24 /dev/urandom | base64 | tr -d '/+=' | head -c 32)
   echo "$TOKEN" > "$SLOZKA/token.txt"
-  chown "$UZIVATEL:$UZIVATEL" "$SLOZKA/token.txt"
-  chmod 600 "$SLOZKA/token.txt"
   echo "New token generated."
 fi
+chown "$UZIVATEL:$UZIVATEL" "$SLOZKA/token.txt"
+chmod 600 "$SLOZKA/token.txt"
 
 # ---------- 6. HTTPS gateway (Caddy) ----------
 nadpis "6/7  HTTPS gateway"
@@ -112,28 +125,43 @@ ${DOMENA} {
     @allowed header Authorization "Bearer ${TOKEN}"
     handle @allowed {
         header Access-Control-Allow-Origin "*"
+        request_body {
+            max_size 30MB
+        }
         reverse_proxy 127.0.0.1:8080 {
             flush_interval -1
         }
     }
 
+    # Anything without the token gets a plain 404 — on purpose.
+    # A 403 would confirm that something is running here; 404 does not.
     handle {
         header Access-Control-Allow-Origin "*"
-        respond "Unauthorized" 403
+        respond "" 404
     }
 
+    # Jen chyby. Kazdy dotaz v logu je zaznam o tom, kdy se uzivatel ptal —
+    # a tenhle produkt stoji na tom, ze se nesbira nic, co byt nemusi.
     log {
         output file /var/log/caddy/access.log
         level ERROR
     }
 }
 CADDY
+# The Caddyfile holds the token in plain text. Caddy runs as user 'caddy',
+# so it must stay readable by that user — and by nobody else.
+# Do NOT chown it to root: 'systemctl reload caddy' then fails.
+chown caddy:caddy /etc/caddy/Caddyfile
+chmod 640 /etc/caddy/Caddyfile
 mkdir -p /var/log/caddy && chown caddy:caddy /var/log/caddy
+
+# Firewall. SSH FIRST — enabling ufw without it locks you out of your
+# own server, and getting back in needs your provider's console.
+ufw allow OpenSSH >/dev/null 2>&1 || ufw allow 22/tcp >/dev/null 2>&1 || true
 ufw allow 80/tcp >/dev/null 2>&1 || true
 ufw allow 443/tcp >/dev/null 2>&1 || true
-systemctl enable caddy >/dev/null 2>&1
-systemctl restart caddy
-echo "Gateway configured."
+ufw --force enable >/dev/null 2>&1 || true
+echo "Gateway configured, firewall on (SSH, 80, 443)."
 
 # ---------- 7. service ----------
 nadpis "7/7  Bridge service"
@@ -205,6 +233,26 @@ FINALLY — start it:
  Access token:    ${TOKEN}
 
  (also saved in ${SLOZKA}/token.txt)
+
+============================================================
+ WHAT THIS INSTALL DOES AND DOES NOT ALLOW
+============================================================
+
+ The assistant may READ your mail and calendar and may create
+ DRAFTS. It cannot send, reply to or forward mail. That is a
+ hard limit in mostek.py, not a polite request in a prompt.
+
+ It cannot read your keys or your Claude sign-in, and it
+ cannot rewrite its own code or its own rules — those files
+ belong to root.
+
+ It CAN browse the web (WebSearch, WebFetch). That is useful,
+ and it also means text written by strangers reaches it. If
+ you would rather it never went online, delete the two
+ "Exa" lines and the "WebSearch", "WebFetch" entries from the
+ NASTROJE list at the top of ${SLOZKA}/mostek.py and run
+ systemctl restart mostek
+
 ============================================================
 
 SHRNUTI

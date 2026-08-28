@@ -10,6 +10,10 @@ Endpointy (poslouchá jen na 127.0.0.1:8080; auth a CORS řeší Caddy):
   POST /prepis   tělo = WAV                   -> JSON {prepis} (jen přepis)
   GET  /stav     -> JSON
   POST /restart  -> restart Claude procesu
+
+Vnitrni hlasky pro uzivatele jsou ANGLICKY a v hranatych zavorkach —
+aplikace v brylich je podle toho pozna a vykresli je jinak nez odpoved.
+Starsi ceske varianty aplikace porad zna, takze starsi server nerozbije.
 """
 import json, os, queue, subprocess, sys, threading, time, signal, unicodedata
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -26,6 +30,12 @@ PORT = 8080
 LOG = "/home/asistent/agent/mostek.log"
 MAX_TELO = 30_000_000        # 30 MB strop na tělo požadavku
 MAX_LOG = 5_000_000
+# Jak dlouho po odpadnutí klienta cekame, nez turn dobehne. Zamek
+# drzime az do te doby, takze dalsi dotaz ceka — proto strop.
+# Dvacet vteřin: bezna odpoved dobehne za jednotky vterin, a horsi
+# pripad tim zustane pod tim, co stal restart s nactenim pameti driv.
+# Kdyz to nestihne, radeji restart nez blokovat uzivatele.
+DOCTENI_S = 20
 
 NASTROJE = ",".join([
     "Read", "Glob", "Grep", "Write", "Edit",
@@ -40,10 +50,7 @@ NASTROJE = ",".join([
     "mcp__claude_ai_Exa__web_search_exa",
     "mcp__claude_ai_Exa__web_fetch_exa",
     # Akce, které něco mění — smí až po výslovném potvrzení (viz CLAUDE.md).
-    "mcp__claude_ai_Gmail__send_message",
     "mcp__claude_ai_Gmail__create_draft",
-    "mcp__claude_ai_Gmail__reply",
-    "mcp__claude_ai_Gmail__forward",
     "mcp__claude_ai_Google_Calendar__create_event",
     "mcp__claude_ai_Google_Calendar__update_event",
 ])
@@ -155,7 +162,8 @@ class Claude:
     # ---------- dotaz (drží zámek přes celou konzumaci generátoru) ----------
     def zeptej_se(self, text, limit=120):
         with self.zamek:
-            rozbito = False
+            rozbito = False        # opravdová porucha -> restart procesu
+            klient_odpadl = False  # jen jsme přestali poslouchat -> dočíst a nechat žít
             try:
                 if not self.zije():
                     log("proces nežije, startuji nový")
@@ -174,7 +182,7 @@ class Claude:
                     log("nakrmeno" if self.nakrmeno else f"krmeni selhalo: {odp[:80]}")
                     if not self.nakrmeno:
                         rozbito = True
-                        yield "[pamet se nenacetla, zkus to za chvili]"
+                        yield "[assistant is still starting]"
                         return
 
                 self.pocet_dotazu += 1
@@ -186,17 +194,56 @@ class Claude:
                         yield kus
                 if not dostal_result:
                     rozbito = True     # timeout/úmrtí → nevěřit frontě
-                    yield "\n[vyprsel cas]"
+                    yield "\n[server timed out]"
             except GeneratorExit:
-                rozbito = True         # klient odpadl uprostřed → turn nedokončen
+                # Klient odpadl uprostřed odpovědi — vypadla mu síť, zhasl
+                # telefon, nebo dotaz zrušil. NENÍ to porucha asistentky.
+                # Dřív se tady proces preventivně restartoval a asistentka
+                # zapomněla celý rozhovor; teď jen dočteme zbytek odpovědi
+                # do prázdna a necháme ji žít i s kontextem.
+                klient_odpadl = True
                 raise
             finally:
+                if klient_odpadl and not rozbito:
+                    try:
+                        docteno = self._docti_zbytek(DOCTENI_S)
+                    except Exception as e:
+                        docteno = False
+                        log("dočítání selhalo:", e)
+                    if docteno:
+                        log("klient odpadl — zbytek odpovědi zahozen, proces žije dál")
+                    else:
+                        rozbito = True   # nedočetli jsme -> fronta je nejistá
+                        log(f"klient odpadl a turn nedoběhl do {DOCTENI_S} s — restartuji")
                 if rozbito:
                     log("turn nedokončen — preventivní restart procesu")
                     try:
                         self._nastartuj_nolock()
                     except Exception as e:
                         log("restart selhal:", e)
+
+    def _docti_zbytek(self, limit):
+        """Dočte rozjetý turn do konce a zahodí ho. Volat jen pod zámkem.
+
+        Zámek držíme celou dobu, takže další dotaz počká — ale počká si
+        na doběhnutí odpovědi (vteřiny), ne na restart s načtením paměti
+        (desítky vteřin). Vrací True, když turn doběhl čistě.
+        """
+        t0 = time.time()
+        while time.time() - t0 < limit:
+            try:
+                radek = self.fronta.get(timeout=1)
+            except queue.Empty:
+                continue
+            if radek is None:
+                return False          # proces skončil
+            try:
+                d = json.loads(radek)
+            except Exception:
+                continue
+            if d.get("type") == "result":
+                return True
+        return False
 
     def _query(self, text, limit):
         """Nízká úroveň: pošli zprávu, čti tokeny. Volat jen pod zámkem.
@@ -216,7 +263,7 @@ class Claude:
             self.p.stdin.flush()
         except Exception as e:
             log("nelze zapsat do Clauda:", e)
-            yield ("[chyba spojeni s Claudem]", False)
+            yield ("[assistant unreachable]", False)
             return
 
         t0 = time.time()
@@ -227,7 +274,7 @@ class Claude:
             except queue.Empty:
                 continue
             if radek is None:
-                yield ("[Claude skoncil]", False)
+                yield ("[assistant stopped]", False)
                 return
             try:
                 d = json.loads(radek)
@@ -347,7 +394,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/prepis":
             audio = self.rfile.read(delka) if delka else b""
             if prepis is None:
-                vysledek = {"chyba": "prepis nedostupny"}
+                vysledek = {"chyba": "transcription unavailable"}
             else:
                 text, chyba = prepis.prepis(audio, self.headers.get("X-Format") or "nahravka.wav")
                 vysledek = {"chyba": chyba} if chyba else {"prepis": text}
@@ -361,7 +408,7 @@ class Handler(BaseHTTPRequestHandler):
             self._zacni_stream()
             try:
                 if prepis is None:
-                    self._posli_kus(json.dumps({"chyba": "prepis nedostupny"},
+                    self._posli_kus(json.dumps({"chyba": "transcription unavailable"},
                                                ensure_ascii=False) + "\n")
                     self.wfile.write(b"0\r\n\r\n")
                     return
@@ -373,7 +420,7 @@ class Handler(BaseHTTPRequestHandler):
                     return
                 self._posli_kus(json.dumps({"prepis": text}, ensure_ascii=False) + "\n")
                 if not text:
-                    self._posli_kus("[nic jsem neslysel]")
+                    self._posli_kus("[nothing heard]")
                     self.wfile.write(b"0\r\n\r\n")
                     return
             except (BrokenPipeError, ConnectionResetError, TimeoutError, OSError):
@@ -415,7 +462,7 @@ def main():
             log("zahrati selhalo:", e)
     threading.Thread(target=zahrej, daemon=True).start()
 
-    # Hlídač: mrtvý proces nastartovat, po 12 h obnovit — ale nikdy
+    # Hlídač: mrtvý proces nastartovat, po 3 h obnovit — ale nikdy
     # nesahat na proces, který právě obsluhuje dotaz.
     def hlidac():
         while True:
@@ -426,8 +473,8 @@ def main():
                 if not claude.zije():
                     log("proces umrel, restartuji")
                     claude._nastartuj_nolock()
-                elif time.time() - claude.start_cas > 12 * 3600:
-                    log("bezi pres 12 h, obnovuji kvuli kontextu")
+                elif time.time() - claude.start_cas > 3 * 3600:
+                    log("bezi pres 3 h, obnovuji kvuli kontextu")
                     claude._nastartuj_nolock()
             finally:
                 claude.zamek.release()
